@@ -1,0 +1,1144 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="full-screen" content="yes" />
+    <meta name="screen-orientation" content="portrait" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        #confetti {
+            display: inline-block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            bottom: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            background-color: #0000;
+        }
+
+        main {
+            position: relative;
+            text-align: center;
+            margin: 0 auto;
+            overflow:hidden;
+        }
+        .webdings {
+            font-family: "Webdings", cursive;
+        }
+        #banner {
+            font-size: 48px;
+            font-family: "Helvetica Neue","Helvetica",sans-serif;
+            color:#eeeeee;
+            text-decoration:none;
+            text-transform: uppercase;
+            font-weight: bold;
+            position:absolute;
+            top:20%;
+            left:0%;
+            transition: all 200ms;
+        }
+        #banner img {
+            width: 80%;
+            animation: 5s linear 0s infinite wave;
+        }
+        #banner:hover {
+           font-size: 56px; 
+        }
+        
+        #paused {
+            display:flex;
+            position:absolute;
+            top:0px;
+            right:0px;
+            left:0px;
+            background-color:#0006;
+            text-align: center;
+
+        }
+        @keyframes wave {
+            0% {
+                transform: translatey(0px);
+            }
+            50% {
+                transform: translatey(-20px);
+            }
+            100% {
+                transform: translatey(0px);
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <main>
+        <canvas></canvas>
+        <canvas id='confetti'></canvas>
+        <a href='#' id='banner' onclick='return app.start()'><img width='100%' src='assets/logo.png' /><br/>Start</a>
+    </main>
+    <script>
+        function $(str) {
+            return document.querySelector(str);
+        }
+
+        function $$(str) {
+            return document.querySelectorAll(str);
+        }
+        window.requestAnimFrame = (function() {
+            return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function(callback) {
+                    window.setTimeout(callback, 1000 / 60);
+                };
+        })();
+
+        const colors = {
+            blue: {
+                front: '#394f78',
+                back: '#222f48',
+                color: 'blue',
+                img: {
+                    src: 'balloon_blue.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+            gold: {
+                front: '#d8ce5b',
+                back: '#736c1c',
+                color: 'green',
+                img: {
+                    src: 'balloon_green.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+            green: {
+                front: '#00cc77',
+                back: '#009944',
+                color: 'green',
+                img: {
+                    src: 'balloon_green.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+            heart: {
+                front: '#cc0000',
+                back: '#990000',
+                color: 'darkred',
+                img: {
+                    src: 'balloon_heart.png',
+                    width:350,
+                    height:386
+                }
+
+            },
+            lime: {
+                front: '#00ee00',
+                back: '#00bb00',
+                color: 'lime',
+                img: {
+                    src: 'balloon_lime.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+            mylar: {
+                front: '#eeeeee',
+                back: '#dddddd',
+                color: 'mylar',
+                img: {
+                    src: 'balloon_mylar.png',
+                    width:350,
+                    height:413
+                }
+
+            },
+            orange: {
+                front: '#cda168',
+                back: '#7b1d3e',
+                color: 'orange',
+                img: {
+                    src: 'balloon_orange.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+            pink: {
+                front: '#cd3168',
+                back: '#7b1d3e',
+                color: 'pink',
+                img: {
+                    src: 'balloon_pink.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+            purple: {
+                front: '#cd3168',
+                back: '#7b1d3e',
+                color: 'purple',
+                img: {
+                    src: 'balloon_purple.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+            red: {
+                front: '#e23d34',
+                back: '#88251f',
+                color: 'red',
+                img: {
+                    src: 'balloon_red.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+            sky: {
+                front: '#008a8a',
+                back: '#005353',
+                color: 'sky',
+                img: {
+                    src: 'balloon_sky.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+            ufo: {
+                front: '#dedede',
+                back: '#aaaaaa',
+                color: 'ufo',
+                img: {
+                    src: 'ufo.png',
+                    width:422,
+                    height:180
+                }
+
+            },
+            yellow: {
+                front: '#b9b900',
+                back: '#6f6f00',
+                color: 'yellow',
+                img: {
+                    src: 'balloon_yellow.png',
+                    width:341,
+                    height:443
+                }
+
+            },
+        };
+
+        const colorlist = ['blue', 'gold', 'green', 'heart', 'lime', 'mylar', 'orange', 'pink', 'red', 'sky', 'ufo', 'yellow'];
+
+
+        // namespace our game
+        var app = {
+            level: 1,
+            WIDTH: 360,
+            HEIGHT: 640,
+            scale: 1,
+            
+            // Position of the canvas in relation to the screen
+            offset: {
+                top: 0,
+                left: 0
+            },
+            // Place to store all balloons, touches, particles etc
+            entities: [],
+            
+            // Game ticks until we spawn a balloon
+            nextBalloon: 60,
+            // for tracking player's progress
+            score: {
+                taps: 0,
+                hit: 0,
+                escaped: 0,
+                accuracy: 0,
+                total: 0,
+                missed: 0
+            },
+            // we'll set the rest of these
+            // in the init function
+            RATIO: null,
+            clouds: [],
+            currentWidth: null,
+            currentHeight: null,
+            canvas: null,
+            ctx: null,
+            ua: null,
+            android: null,
+            ios: null,
+            sky: [ [{ "offset": 0, "color": "#00000c" }, { "color": "#000000", "offset": 1 }], [{ "color": "#020111", "offset": .85 }, { "color": "#191621", "offset": 1 }], [{ "color": "#020111", "offset": .6 }, { "color": "#20202c", "offset": 1 }], [{ "color": "#020111", "offset": .1 }, { "color": "#3a3a52", "offset": 1 }], [{ "color": "#20202c", "offset": 0 }, { "color": "#515175", "offset": 1 }], [{ "color": "#40405c", "offset": 0 }, { "color": "#6f71aa", "offset": .8 }, { "color": "#8a76ab", "offset": 1 }], [{ "color": "#4a4969", "offset": 0 }, { "color": "#7072ab", "offset": .5 }, { "color": "#cd82a0", "offset": 1 }], [{ "color": "#757abf", "offset": 0 }, { "color": "#8583be", "offset": .6 }, { "color": "#eab0d1", "offset": 1 }], [{ "color": "#82addb", "offset": 0 }, { "color": "#ebb2b1", "offset": 1 }], [{ "color": "#94c5f8", "offset": 1 }, { "color": "#a6e6ff", "offset": .7 }, { "color": "#b1b5ea", "offset": 1 }], [{ "color": "#b7eaff", "offset": 0 }, { "color": "#94dfff", "offset": 1 }], [{ "color": "#9be2fe", "offset": 0 }, { "color": "#67d1fb", "offset": 1 }], [{ "color": "#90dffe", "offset": 0 }, { "color": "#38a3d1", "offset": 1 }], [{ "color": "#57c1eb", "offset": 0 }, { "color": "#246fa8", "offset": 1 }], [{ "color": "#2d91c2", "offset": 0 }, { "color": "#1e528e", "offset": 1 }], [{ "color": "#2473ab", "offset": 0 }, { "color": "#1e528e", "offset": .7 }, { "color": "#5b7983", "offset": 1 }], [{ "color": "#1e528e", "offset": 0 }, { "color": "#265889", "offset": .5 }, { "color": "#9da671", "offset": 1 }], [{ "color": "#1e528e", "offset": 0 }, { "color": "#728a7c", "offset": .5 }, { "color": "#e9ce5d", "offset": 1 }], [{ "color": "#154277", "offset": 0 }, { "color": "#576e71", "offset": .3 }, { "color": "#e1c45e", "offset": .7 }, { "color": "#b26339", "offset": 1 }], [{ "color": "#163C52", "offset": 0 }, { "color": "#4f4f47", "offset": .3 }, { "color": "#c5752d", "offset": .6 }, { "color": "#b7490f", "offset": .8 }, { "color": "#2F1107", "offset": 1 }], [{ "color": "#071b26", "offset": 0 }, { "color": "#071B26", "offset": .3 }, { "color": "#8a3b12", "offset": .8, }, { "color": "#240e03", "offset": 1 }], [{ "color": "#010a10", "offset": .3 }, { "color": "#59230B", "offset": .8 }, { "color": "#2F1107", "offset": 1 }], [{ "color": "#090401", "offset": .5 }, { "color": "#4b1d06", "offset": 1 }], [{ "color": "#00000c", "offset": .8 }, { "color": "#150800", "offset": 1 }] ], 
+            config: {
+            
+            },
+            state: {
+
+            },
+            images: {
+
+            },
+            init: function() {
+                let hour = new Date().getHours();
+                app.state.night = ((hour > 20) || (hour < 5)) ? true : false;
+
+                app.CLOUD = new Image();
+                app.CLOUD.src = "cloud.png";
+                
+                app.SUNMOON = new Image();
+                app.SUNMOON.src = (app.state.night) ? "moon.png" : "sun.png";
+
+                app.DART = new Image();
+                app.DART.src = "arrow.png";
+
+                app.paused = 0;
+
+                // the proportion of width to height
+                app.RATIO = app.WIDTH / app.HEIGHT;
+                // these will change when the screen is resize
+                app.currentWidth = app.WIDTH;
+                app.currentHeight = app.HEIGHT;
+                // this is our canvas element
+                app.canvas = document.querySelectorAll('canvas')[0];
+                app.confetti = document.querySelector('#confetti');
+
+                app.canvas.width = app.WIDTH;
+                app.canvas.height = app.HEIGHT;
+
+                app.confetti.width = app.WIDTH;
+                app.confetti.height = app.HEIGHT;
+
+                app.ctx = app.canvas.getContext('2d');
+
+
+                app.bggrad = app.ctx.createLinearGradient(0, 0, window.innerHeight * app.RATIO, window.innerHeight);
+
+                // set background gradient based on hour of day
+                let currentGradient = app.sky[new Date().getHours()];
+
+                //currentGradient = app.sky[12];  // <-- uncomment to always be noon
+                currentGradient.forEach(item => app.bggrad.addColorStop(item.offset, item.color));
+
+                // log android, ios & useragent environments so we know if we need to
+                // hide the address bar in the resize function
+                app.ua = navigator.userAgent.toLowerCase();
+                app.android = app.ua.indexOf('android') > -1 ? true : false;
+                app.ios = (app.ua.indexOf('iphone') > -1 || app.ua.indexOf('ipad') > -1) ? true : false;
+
+                app.balloons = [];
+                app.ufos = [];
+                
+                for (let i = 1; i < 11; i++) {
+                    let img = new Image();
+                    img.info = colors['ufo'];
+                    img.src = `ufo/ufo${i}.png`;
+                    app.ufos.push(img);
+                }
+                for (let i = 0; i < colorlist.length; i++) {
+                    app.balloons[i] = new Image();
+                    app.balloons[i].info = colors[colorlist[i]];
+                    app.balloons[i].src = `assets/balloon_${colorlist[i]}.png`;
+                    app.balloons[i].onload = function(e) {
+                        // console.log(`Loaded ${colorlist[i]} balloon.`);
+                        if (i == colorlist.length - 1) {
+                            app.render();
+                        }
+                    };
+                }
+                
+                app.state.sunmoon = new app.SunMoon();
+
+                for (let i = 0; i < app.level + 2; i++) {
+                    app.clouds.push(new app.Cloud());
+                }
+
+                // set up our wire effect
+                // basically, a series of overlapping circles
+                // across the top of screen
+                app.wire = {
+                    x: -50, // x coord of first circle
+                    y: -400, // y coord of first circle
+                    r: 400, // circle radius
+                    time: 0, // we'll use this in calculating the sine wire
+                    offset: 200 // this will be the sine wire offset
+                };
+                // calculate how many circles we need to 
+                // cover the screen width
+                app.wire.total = Math.ceil(app.WIDTH / app.wire.r) + 1;
+
+               // we're ready to resize
+                app.resize();
+                setupCanvas();
+                // app.loop();
+
+            },
+            preventDefault: function(e) {
+                e.preventDefault();
+                return false;
+            },
+            touchstart: function(e) {
+                e.preventDefault();
+                app.Input.set(e.changedTouches[0]);
+            },
+            doclick: function(e) {
+                e.preventDefault();
+                if (app.paused) {
+                    app.paused = 0;
+                    app.loop();
+                } else {
+                    app.Input.set(e);
+                }
+            },
+            start: function() {
+                // listen for clicks
+                window.addEventListener('click', app.doclick, {passive: false} );
+                window.addEventListener('touchstart', app.touchstart, {passive:false } );
+                window.addEventListener('touchmove', app.preventDefault, {passive:false});
+                window.addEventListener('touchend', app.preventDefault, {passive:false} );
+                app.score.missed = -1;
+                $("#banner").style.display = "none";
+                app.loop();
+                app.Sound.music.volume = 0.18;
+                app.Sound.music.loop = true;
+                app.Sound.music.playbackRate = 0.6;
+                app.Sound.music.play();
+
+                app.Sound.pops = [ new Audio("sounds/pop1.mp3"), new Audio("sounds/pop2.mp3"), new Audio("sounds/pop3.mp3") ];
+
+            },
+            gameover: function() {
+                window.removeEventListener('click', app.doclick, {passive:false } );
+                window.removeEventListener('touchstart', app.touchstart, {passive:false } );
+                window.removeEventListener('touchmove', app.preventDefault, {passive:false});
+                window.removeEventListener('touchend', app.preventDefault, {passive:false} );
+
+
+            },
+            resize: function() {
+                $("main").style.height = window.innerHeight + 'px';
+                $("main").style.width = window.innerHeight * app.RATIO + 'px';
+
+                app.currentHeight = window.innerHeight;
+                app.currentWidth = app.currentHeight * app.RATIO;
+
+                if (app.currentWidth > window.innerWidth) {
+                    app.currentWidth = window.innerWidth;
+
+                }
+                // this will create some extra space on the
+                // page, allowing us to scroll pass
+                // the address bar, and thus hide it.
+                if (app.android || app.ios) {
+                    document.body.style.height = (window.innerHeight + 50) + 'px';
+                }
+
+                // set the new canvas style width & height
+                // note: our canvas is still 360x640 but
+                // we're essentially scaling it with CSS
+                app.canvas.style.width = app.currentWidth + 'px';
+                app.canvas.style.height = app.currentHeight + 'px';
+
+                app.confetti.style.width = app.currentWidth + 'px';
+                app.confetti.style.height = app.currentHeight + 'px';
+                
+                // the amount by which the css resized canvas
+                // is different to the actual (360x640) size.
+                app.scale = app.currentWidth / app.WIDTH;
+
+                // position of canvas in relation to
+                // the screen
+                app.offset.top = app.canvas.offsetTop;
+                app.offset.left = app.canvas.offsetLeft;
+
+                // we use a timeout here as some mobile
+                // browsers won't scroll if there is not
+                // a small delay
+                window.setTimeout(function() {
+                    window.scrollTo(0, 1);
+                }, 1);
+            },
+
+            update: function(check=false) {
+                var i, checkCollision = check;
+
+                // decrease our nextBalloon counter
+                app.nextBalloon -= 1;
+
+                // if the counter is less than 2 (was 0) 
+                if (app.nextBalloon < (app.level * 10)) {
+                    // put a new instance of balloon into our entities array
+                    app.entities.push(new app.Balloon());
+                    // reset the counter with a random value
+                    app.nextBalloon = (Math.random() * 100) + 100;
+                }
+
+                // Handle touch events 
+                if (app.Input.tapped) {
+                    if (app.collides({x: 300, y: 40, r: 20}, {x:app.Input.x, y:app.Input.y, r: 7})) {
+                        app.paused ^= 1;
+                        app.Input.tapped = false;
+                        if (app.paused) {
+                            app.Sound.music.pause();
+                        } else {
+                            app.Sound.music.play();
+                        }
+                    } else {
+                        app.score.taps++;
+                        app.entities.push(new app.Touch(app.Input.x, app.Input.y));
+                        app.Input.tapped = false;
+                        if (!checkCollision) {
+                            setTimeout(function() { 
+                                // app.Input.tapped = true;
+                                app.update(true); 
+                            }, 300);
+                        }
+                        checkCollision = check;
+                    }
+                }
+
+                app.clouds.forEach((item, i) => {
+                    item.update();
+                    if (item.remove) {
+                        app.clouds.splice(i, 1);
+                        app.clouds.push(new app.Cloud());
+                    }
+                });
+                
+                app.state.sunmoon.update();
+                
+                if (app.state.sunmoon.remove) {
+                    app.state.sunmoon = new app.SunMoon();
+                }
+
+                let hadhit = false;
+
+                // cycle through all entities and update as necessary
+                for (let i = 0; i < app.entities.length; i++) {
+                    app.entities[i].update();
+
+                    if (app.entities[i].type === 'balloon' && checkCollision) {
+                        hit = app.collides(app.entities[i], {
+                            x: app.Input.x,
+                            y: app.Input.y,
+                            r: 7
+                        });
+                        if (hit) {
+                            hadhit = true;
+                            app.Sound.play();
+                            addConfetti({
+                                x: app.Input.x,
+                                y: app.Input.y,
+                                color: app.entities[i].color
+                            });
+
+                            app.score.hit += 1;
+                            app.Sound.music.playbackRate += 0.005;
+
+                            if (app.Sound.music.playbackRate > 1.2) {
+                                app.Sound.music.playbackRate = 0.6;
+                            }
+                        }
+
+                        app.entities[i].remove = hit;
+                    }
+
+                    // delete from array if remove property
+                    // flag is set to true
+                    if (app.entities[i].remove) {
+                        if (app.entities[i].type === "balloon") {
+                            app.score.total++;
+                        }
+                        app.entities.splice(i, 1);
+                    }
+                }
+                
+                if (checkCollision && !hadhit) {
+                   app.score.missed++;
+                    app.score.escaped++;
+                }
+                // update wire offset
+                // feel free to play with these values for
+                // either slower or faster wires
+                //app.wire.time = new Date().getTime() * 0.002;
+                //app.wire.offset = Math.sin(app.wire.time * 0.8) * 5;
+
+                // calculate accuracy
+                app.score.accuracy = (app.score.hit / (app.score.total + app.score.missed)) * 100;
+                app.score.accuracy = isNaN(app.score.accuracy) ? 0 : ~~(app.score.accuracy); // a handy way to round floats
+
+            },
+
+
+            // this is where we draw all the entities
+            render: function() {
+
+                let i;
+
+                app.Draw.rect(0, 0, app.WIDTH, app.HEIGHT, app.bggrad);
+                app.state.sunmoon.render();
+
+                for (i = 0; i < app.clouds.length; i++) {
+                    app.clouds[i].render();
+                }
+
+                // display snazzy wire effect
+                for (i = 0; i < app.wire.total; i++) {
+                    app.Draw.wire(
+                        app.wire.x + app.wire.offset + (i * (app.wire.r * 1.6)),
+                        app.wire.y + (app.wire.y * i),
+                        app.wire.r,
+                        '#fff');
+                }
+
+                // cycle through all entities and render to canvas
+                for (i = 0; i < app.entities.length; i += 1) {
+                    app.entities[i].render();
+                }
+
+                app.ctx.fillStyle = "#00000066";
+                app.ctx.fillRect(5, 5, 140, 85);
+
+                app.ctx.font = "uppercase 22px 'Titan One'";
+                // display scores
+                app.Draw.text(`${app.score.hit}`, 20, 30, 30, "#eee", "'Titan One'");
+
+                // app.Draw.text(`${app.score.escaped}`, 20, 50, 20, "#fff", "'Titan One'");
+                app.Draw.text(`${app.score.accuracy}%`, 20, 70, 20, "#fff", "'Titan One'");
+                
+                if (app.paused) {
+                    app.Draw.text(String.fromCharCode(52), 260, 60, 64, "#fff", "Webdings");
+                } else {
+                    app.Draw.text(String.fromCharCode(59), 260, 60, 64, "#fff", "Webdings");
+                }
+
+            },
+
+
+            // main loop
+            loop: function() {
+                if (!app.paused) {
+                    requestAnimFrame(app.loop);
+
+                    app.update();
+                    app.render();
+                }
+            }
+
+
+        };
+
+        // checks if two entities are touching
+        app.collides = function(a, b) {
+
+            var distance_squared = (((a.x - b.x) * (a.x - b.x)) +
+                ((a.y - b.y) * (a.y - b.y)));
+
+            var radii_squared = (a.r + b.r) * (a.r + b.r);
+
+            if (distance_squared < radii_squared) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+
+        // abstracts various canvas operations into
+        // standalone functions
+        app.Draw = {
+
+            clear: function() {
+                app.ctx.clearRect(0, 0, app.WIDTH, app.HEIGHT);
+            },
+
+
+            rect: function(x, y, w, h, col) {
+                app.ctx.fillStyle = col;
+                app.ctx.fillRect(x, y, w, h);
+                //app.ctx.drawImage(app.CLOUD, 100, 100, 300, 200);
+            },
+
+            circle: function(x, y, r, col) {
+                app.ctx.fillStyle = col;
+                app.ctx.beginPath();
+                app.ctx.arc(x + 5, y + 5, r, 0, Math.PI * 2, true);
+                app.ctx.closePath();
+                app.ctx.fill();
+            },
+
+            wire: function(x, y, r, col) {
+                app.ctx.fillStyle = col;
+                app.ctx.beginPath();
+                app.ctx.lineWidth = 1;
+                app.ctx.arc(x + 5, y + 50, r, Math.PI / 1.25, Math.PI / 5, true);
+                app.ctx.arc(x + 5, y + 80, r, Math.PI / 1.25, Math.PI / 5, true);
+                app.ctx.stroke();
+            },
+
+            text: function(string, x, y, size, col, font="Monospace") {
+
+                app.ctx.font = `${size}px ${font}`;
+                app.ctx.fillStyle = "#000000";
+                app.ctx.fillText(string, x + 1, y + 1);
+
+                app.ctx.fillStyle = col;
+                app.ctx.fillText(string, x, y);
+            }
+
+        };
+
+
+        app.Sound = {
+            pops: [ new Audio("sounds/pop1.mp3"), new Audio("sounds/pop2.mp3"), new Audio("sounds/pop3.mp3") ],
+            music: new Audio("sounds/music.mp3"),
+            play: function() {
+                this.pops[~~(Math.random() * this.pops.length)].play();
+            }
+        };
+
+
+        app.Input = {
+
+            x: 0,
+            y: 0,
+            tapped: false,
+
+            set: function(data) {
+                data.offsetX = (data.offsetX) ? data.offsetX : data.clientX;
+                data.offsetY = (data.offsetY) ? data.offsetY : data.clientY;
+                this.x = (data.offsetX - app.offset.left) / app.scale;
+                this.y = (data.offsetY - app.offset.top) / app.scale;
+                this.tapped = true;
+
+            }
+
+        };
+
+        app.Touch = function(x, y) {
+            this.img = app.DART;
+
+            this.type = 'touch'; 
+            this.width = this.img.width;
+            this.height = this.img.height;
+            
+            this.x = x;         
+            this.y = y;         
+            this.r = 5;         
+
+            this.opacity = 1;       // initial opacity. the dot will fade out
+            this.fade = 0.05;       // amount by which to fade on each game tick
+            
+            this.scale = 1;
+            this.shrink = 0.98;       // amount by which to fade on each game tick
+
+            // this.remove = false;  
+                                   
+
+            this.update = function() {
+                // reduce the opacity accordingly
+                // this.opacity -= this.fade;
+                this.scale *= this.shrink;
+                
+                this.width *= this.scale;
+                this.height *= this.scale;
+                this.r *= this.scale;
+
+                // if opacity if 0 or less, flag for removal
+                this.remove = (this.width < 1) ? true : false;
+            };
+
+            this.render = function() {
+                app.Draw.circle(this.x - (this.r), this.y - (this.r ), this.r, '#fff9');
+                app.ctx.drawImage(this.img, this.x - (this.width / 2), this.y + (this.height), this.width, this.height);
+            };
+
+        };
+
+        app.SunMoon = function() {
+            this.hour = new Date().getHours();
+            this.rand = Math.random();
+            
+            this.night = ((this.hour > 20) || (this.hour < 5)) ? true : false;
+            this.morning = (this.hour < 13) ? true : false;
+            this.sunset = ((this.hour > 16) && (this.hour < 20)) ? true : false;
+
+            this.width = ~~(this.rand * 300) + 50;
+            this.height = ~~(this.width); // * 0.66666);
+            
+            this.img = new Image();
+            this.img.src = (this.night) ? "moon.png" : "sun.png";
+
+            this.x = -this.width / 2;
+            this.y = ~~(Math.random() * (app.HEIGHT - this.height));
+            
+            this.velX = (Math.random() * (Math.random() * .25));// / 100;
+            this.velY = ((Math.random() * .25) + .25 ) / 100;
+            
+            this.velY *= (this.y < (app.currentHeight / 2)) ? 1 : -1;
+
+            this.update = function() {
+                this.x += this.velX;
+                this.y += this.velY;
+
+                this.remove = ((this.x > app.WIDTH) || (this.y > app.HEIGHT) || (this.x < -this.width) || (this.y < -this.height)) ? true : false;
+            };
+
+            this.render = function() {
+                app.ctx.save();
+                app.ctx.globalAlpha = 0.6;
+                app.ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+                app.ctx.restore();
+            };
+        };
+
+
+
+        app.Cloud = function(r=false) {
+            this.rand = Math.random();
+            this.scale = this.rand + .25;
+            this.width = 300 * this.scale;
+            this.height = 200 * this.scale;
+
+            this.x = (r) ? ~~(this.rand * app.currentWidth) : -this.width;
+            this.y = ~~(this.rand * (app.HEIGHT - this.height));
+            
+            this.velX = this.rand * this.rand;
+            this.velY = 0;
+
+            this.update = function() {
+                this.x += this.velX;
+                this.y += this.velY;
+
+                this.remove = ((this.x > app.WIDTH) || (this.y > app.HEIGHT) || (this.x < -this.width) || (this.y < -this.height)) ? true : false;
+            };
+
+            this.render = function() {
+                app.ctx.save();
+                app.ctx.globalAlpha = 0.4;
+                app.ctx.drawImage(app.CLOUD, this.x, this.y, this.width, this.height);
+                app.ctx.restore();
+            };
+        };
+
+        app.Balloon = function() {
+            this.type = 'balloon';
+
+            this.r = (Math.random() * 30) + (30 / app.level);
+            this.speed = (Math.random() * 2) + .25;
+            this.rando = Math.floor(Math.random() * colorlist.length);
+            this.color = colorlist[this.rando];
+            this.balloon = colors[colorlist[this.rando]];
+            
+            this.idx = ~~(Math.random() * 8);
+            this.x = ~~(Math.random() * (app.WIDTH - (this.r * 2)) + this.r);
+            this.y = ~~(app.HEIGHT + (Math.random() * 100) + 100);
+            this.offset = ~~(Math.random() * 10000);
+
+            // console.log(`New balloon with color ${this.basecolor}`);
+
+            // the amount by which the balloon
+            // will move from side to side
+            this.waveSize = Math.floor(Math.random() * (5 * app.level)) + (this.r / 2);
+            // we need to remember the original
+            // x position for our sine wave calculation
+            this.xConstant = this.x;
+
+            this.remove = false;
+            // this.image = app.balloons[Math.floor(Math.random() * app.balloons.length)];
+            this.image = app.balloons[this.rando];
+            this.time = new Date().getTime();
+
+            this.update = function() {
+
+                // a sine wave is commonly a function of time
+                var time = (new Date().getTime() + this.offset) * 0.002;
+
+                this.y -= this.speed;
+                // the x coord to follow a sine wire
+                this.x = this.waveSize * Math.sin(time) + this.xConstant;
+
+                // if offscreen flag for removal
+                if (this.y < -10) {
+                    app.score.escaped += 1; // update score
+                    this.remove = true;
+                }
+
+                if (this.color == 'ufo') {
+                    this.idx += .25;
+                    let now = new Date().getTime();
+                    if (now - this.time > 100) {
+                    }
+                    if (this.idx > 8) {
+                        this.idx = 0;
+                    }
+                    this.time = new Date().getTime();
+                }
+            };
+
+            this.render = function() {
+
+                app.ctx.save();
+                //                app.Draw.circle(this.x, this.y, this.r, this.color);
+                if (this.color == 'ufo') {
+                    app.ctx.globalAlpha = 1;
+                    app.ctx.drawImage(this.image, 
+                        0, (176 * ~~this.idx), 423, 176, 
+                        this.x - this.r + 5, this.y - this.r + 5, 211, 83);
+                } else {
+                    app.ctx.globalAlpha = 0.8;
+                    app.ctx.drawImage(this.image, 0, 0, this.balloon.img.width, this.balloon.img.height, this.x - this.r + 5, this.y - this.r + 5, this.r * 2, ((this.r * 2) / 341) * 443);
+                }
+                app.ctx.restore();
+            };
+
+        };
+
+        app.Particle = function(x, y, r, col) {
+
+            this.x = x;
+            this.y = y;
+            this.r = r;
+            this.col = col;
+
+            // determines whether particle will
+            // travel to the right of left
+            // 50% chance of either happening
+            this.dirX = (Math.random() * 2 > 1) ? 1 : -1;
+            this.dirY = (Math.random() * 2 > 1) ? 1 : -1;
+
+            // random values so particles do no
+            // travel at the same speeds
+            this.vx = ~~(Math.random() * 4) * this.dirX;
+            this.vy = ~~(Math.random() * 4) * this.dirY;
+
+            this.remove = false;
+
+            this.update = function() {
+
+                // update coordinates
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // increase velocity so particle
+                // accelerates off screen
+                this.vx *= 0.99;
+                this.vy *= 0.99;
+
+                // adding this negative amount to the
+                // y velocity exerts an upward pull on
+                // the particle, as if drawn to the
+                // surface
+                //                this.vy += 0.05;
+
+                this.r = (this.r > 0.05) ? this.r - 0.05 : 0;
+
+                // offscreen
+                if ((!this.r) || (this.y < 0) || (this.y > app.currentHeight)) {
+                    this.remove = true;
+                }
+
+            };
+
+
+            this.render = function() {
+                app.Draw.circle(this.x, this.y, this.r, this.col);
+            };
+
+        };
+
+        window.addEventListener('load', app.init, false);
+        window.addEventListener('resize', app.resize, false);
+    </script>
+    <script>
+        // helper
+        rand = (min, max) => Math.random() * (max - min) + min;
+
+        // params to play with
+        const confettiParams = {
+            // number of confetti per "explosion"
+            number: 40,
+            // min and max size for each rectangle
+            size: {
+                x: [5, 20],
+                y: [5, 20]
+            },
+            // power of explosion
+            initSpeed: 25,
+            // defines how fast particles go down after blast-off
+            gravity: 0.25,
+            // how wide is explosion
+            drag: 0.08,
+            // how slow particles are falling
+            terminalVelocity: 6,
+            // how fast particles are rotating around themselves
+            flipSpeed: 0.027,
+        };
+
+        // Confetti constructor
+        function Confetti(color) {
+            this.randomModifier = rand(-1, 1);
+
+            if (!color) {
+                color = colorlist[Math.floor(rand(0, colorlist.length))];
+            }
+
+            this.colorPair = colors[color];
+            this.dimensions = {
+                x: rand(confettiParams.size.x[0], confettiParams.size.x[1]),
+                y: rand(confettiParams.size.y[0], confettiParams.size.y[1]),
+            };
+            this.position = {
+                x: clickPosition[0],
+                y: clickPosition[1]
+            };
+            this.rotation = rand(0, 2 * Math.PI);
+            this.scale = {
+                x: 1,
+                y: 1
+            };
+            this.velocity = {
+                x: rand(-confettiParams.initSpeed, confettiParams.initSpeed) * 0.4,
+                y: rand(-confettiParams.initSpeed, confettiParams.initSpeed)
+            };
+            this.flipSpeed = rand(0.2, 1.5) * confettiParams.flipSpeed;
+
+            if (this.position.y <= container.h) {
+                this.velocity.y = -Math.abs(this.velocity.y);
+            }
+
+            this.terminalVelocity = rand(1, 1.5) * confettiParams.terminalVelocity;
+            this.remove = false;
+
+            this.update = function() {
+                this.velocity.x *= 0.98;
+                this.position.x += this.velocity.x;
+
+                this.velocity.y += (this.randomModifier * confettiParams.drag);
+                this.velocity.y += confettiParams.gravity;
+                this.velocity.y = Math.min(this.velocity.y, this.terminalVelocity);
+                this.position.y += this.velocity.y;
+
+                this.scale.y = Math.cos((this.position.y + this.randomModifier) * this.flipSpeed);
+                this.color = this.scale.y > 0 ? this.colorPair.front : this.colorPair.back;
+            }
+
+            this.render = function() {
+                this.update();
+                confettiCtx.translate(this.position.x, this.position.y);
+                confettiCtx.rotate(this.rotation);
+                const width = (this.dimensions.x * this.scale.x);
+                const height = (this.dimensions.y * this.scale.y);
+                confettiCtx.fillStyle = this.color;
+                confettiCtx.fillRect(-0.5 * width, -0.5 * height, width, height);
+                this.dimensions.x -= 0.125;
+                this.dimensions.y -= 0.125;
+
+                if ((this.dimensions.x < 0) || (this.dimensions.y < 0)) {
+                    this.remove = true;
+                }
+                confettiCtx.setTransform(1, 0, 0, 1, 0, 0)
+            };
+        }
+
+        function updateConfetti() {
+            confettiCtx.clearRect(0, 0, app.WIDTH, app.HEIGHT);
+
+            confettiElements.forEach((c, i) => {
+                c.render();
+
+                if (c.remove) {
+                    confettiElements.splice(i, 1);
+                }
+                
+                confettiCtx.setTransform(1, 0, 0, 1, 0, 0)
+            });
+            if (confettiElements.length) window.requestAnimationFrame(updateConfetti);
+        }
+        let container, confettiCtx;
+
+        function setupCanvas() {
+            confettiCtx = $("#confetti").getContext('2d');
+            app.confetti.style.width = app.currentWidth + 'px';
+            app.confetti.style.height = app.currentHeight + 'px';
+
+            const box = $("#confetti").getBoundingClientRect();
+
+            container = {
+                x: box.left,
+                y: box.top,
+                w: app.WIDTH,
+                h: app.HEIGHT
+            };
+       }
+
+        let confettiElements = [];
+
+        function addConfetti(e) {
+            const canvasBox = confetti.getBoundingClientRect();
+            let color = "red";
+            if (e) {
+                if (e.clientX) {
+                    clickPosition = [
+                        e.clientX - canvasBox.left,
+                        e.clientY - canvasBox.top
+                    ];
+                } else if (e.x) {
+                    clickPosition = [e.x, e.y];
+                }
+                if (e.color) {
+                    color = e.color;
+                }
+            } else {
+                clickPosition = [
+                    app.WIDTH * Math.random(),
+                    app.HEIGHT * Math.random()
+                ];
+            }
+            for (let i = 0; i < confettiParams.number; i++) {
+                confettiElements.push(new Confetti(color))
+            }
+            window.requestAnimationFrame(updateConfetti);
+        }
+
+        function hideConfetti() {
+            confettiElements = [];
+            window.cancelAnimationFrame(updateConfetti)
+        }
+
+    </script>
+</body>
+
+</html>
